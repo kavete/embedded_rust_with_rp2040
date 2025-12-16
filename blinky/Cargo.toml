@@ -1,0 +1,17 @@
+[package]
+name = "blinky"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+cortex-m-rt = "0.7.5"
+embedded-hal = "1.0.0"
+panic-halt = "1.0.0"
+rp2040-boot2 = "0.3.0"
+rp2040-hal = { version = "0.11.0", features = ["binary-info", "critical-section-impl", "rt", "defmt"]}
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"
