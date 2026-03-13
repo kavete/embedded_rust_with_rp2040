@@ -1,59 +1,49 @@
 #![no_std]
 #![no_main]
 
-use panic_halt as _;
+use core::panic::PanicInfo;
 
-// Alias for our HAL crate
 use rp2040_hal as hal;
 
-// A shorter alias for the Peripheral Access Crate, which provides low-level
-// register access
-use hal::pac;
+use embedded_hal::delay::DelayNs;
+use embedded_hal::digital::OutputPin;
 
-// Some traits we need
-// use embedded_hal::delay::DelayNs;
-use embedded_hal::digital::{InputPin, OutputPin};
+// Custom Panic handler
 
-/// The linker will place this boot block at the start of our program image. We
-/// need this to help the ROM bootloader get our code up and running.
-/// Note: This boot block is not necessary when using a rp-hal based BSP
-/// as the BSPs already perform this step.
-#[link_section = ".boot2"]
+#[panic_handler]
+fn panic(_info: &PanicInfo) -> ! {
+    loop {}
+}
+
+// Copy bootloader from rp2040-boot2 into BOOT2 section of memory
+#[unsafe(link_section = ".boot2")]
 #[used]
 pub static BOOT2: [u8; 256] = rp2040_boot2::BOOT_LOADER_GENERIC_03H;
 
-/// External high-speed crystal on the Raspberry Pi Pico board is 12 MHz. Adjust
-/// if your board has a different frequency
-// const XTAL_FREQ_HZ: u32 = 12_000_000u32;
+// External high-speed crystal on the Raspberry Pi Pico board is 12 MHz.
+const XTAL_FREQ_HZ: u32 = 12_000_000;
 
-/// Entry point to our bare-metal application.
-///
-/// The `#[rp2040_hal::entry]` macro ensures the Cortex-M start-up code calls this function
-/// as soon as all global variables and the spinlock are initialised.
-///
-/// The function configures the RP2040 peripherals, then toggles a GPIO pin in
-/// an infinite loop. If there is an LED connected to that pin, it will blink.
-#[rp2040_hal::entry]
+#[hal::entry]
 fn main() -> ! {
-    // Grab our singleton objects
-    let mut pac = pac::Peripherals::take().unwrap();
+    // Get ownership of hardware peripherals
+    let mut pac = hal::pac::Peripherals::take().unwrap();
 
     // Set up the watchdog driver - needed by the clock setup code
-    // let mut watchdog = hal::Watchdog::new(pac.WATCHDOG);
+    let mut watchdog = hal::Watchdog::new(pac.WATCHDOG);
 
-    // // Configure the clocks
-    // let clocks = hal::clocks::init_clocks_and_plls(
-    //     XTAL_FREQ_HZ,
-    //     pac.XOSC,
-    //     pac.CLOCKS,
-    //     pac.PLL_SYS,
-    //     pac.PLL_USB,
-    //     &mut pac.RESETS,
-    //     &mut watchdog,
-    // )
-    // .unwrap();
+    // Configure the clocks
+    let clocks = hal::clocks::init_clocks_and_plls(
+        XTAL_FREQ_HZ,
+        pac.XOSC,
+        pac.CLOCKS,
+        pac.PLL_SYS,
+        pac.PLL_USB,
+        &mut pac.RESETS,
+        &mut watchdog,
+    )
+    .unwrap();
 
-    // let mut timer = rp2040_hal::Timer::new(pac.TIMER, &mut pac.RESETS, &clocks);
+    let mut timer = hal::Timer::new(pac.TIMER, &mut pac.RESETS, &clocks);
 
     // The single-cycle I/O block controls our GPIO pins
     let sio = hal::Sio::new(pac.SIO);
@@ -66,23 +56,13 @@ fn main() -> ! {
         &mut pac.RESETS,
     );
 
-    // Configure GPIO25 as an output
+    // Configure GPIO15 as an output
     let mut led_pin = pins.gpio15.into_push_pull_output();
 
-    let mut button_pin = pins.gpio16.into_pull_up_input();
     loop {
-        // led_pin.set_high().unwrap();
-        // timer.delay_ms(500);
-        // led_pin.set_low().unwrap();
-        // timer.delay_ms(500);
-        //
-
-        if button_pin.is_low().unwrap() {
-            led_pin.set_high().unwrap();
-        } else {
-            led_pin.set_low().unwrap();
-        }
+        led_pin.set_high().unwrap();
+        timer.delay_ms(500);
+        led_pin.set_low();
+        timer.delay_ms(500);
     }
 }
-
-// End of file
