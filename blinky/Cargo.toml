@@ -4,11 +4,11 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-cortex-m = "0.7.7"
-cortex-m-rt = "0.7.5"
-embedded-hal = "1.0.0"
-rp2040-boot2 = "0.3.0"
-rp2040-hal = { version = "0.12.0", features = [ "critical-section-impl", "rt"]}
+cortex-m = { workspace = true}
+cortex-m-rt = {workspace = true}
+embedded-hal = {workspace = true}
+rp2040-boot2 = {workspace = true}
+rp2040-hal = {workspace = true }
 
 [profile.dev]
 
