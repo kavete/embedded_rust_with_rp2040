@@ -1,0 +1,14 @@
+[package]
+name = "usb-serial"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+usb-device = {workspace = true }
+usbd-serial = {workspace = true }
+cortex-m = { workspace = true}
+cortex-m-rt = {workspace = true}
+embedded-hal = {workspace = true}
+rp2040-boot2 = {workspace = true}
+rp2040-hal = {workspace = true }
+

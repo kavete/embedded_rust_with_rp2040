@@ -5,10 +5,10 @@ use core::panic::PanicInfo;
 
 use rp2040_hal as hal;
 
+// Custom Panic handler
+
 use embedded_hal::delay::DelayNs;
 use embedded_hal::digital::OutputPin;
-
-// Custom Panic handler
 
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {

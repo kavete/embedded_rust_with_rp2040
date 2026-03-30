@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["blinky"]
+members = ["blinky", "usb-serial"]
 
 [workspace.dependencies]
 cortex-m = "0.7.7"
@@ -8,4 +8,6 @@ cortex-m-rt = "0.7.5"
 embedded-hal = "1.0.0"
 rp2040-boot2 = "0.3.0"
 rp2040-hal = { version = "0.12.0", features = [ "critical-section-impl", "rt"]}
+usb-device = "0.3.2"
+usbd-serial = "0.2.2"
 
